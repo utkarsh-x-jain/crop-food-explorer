@@ -40,3 +40,21 @@ button {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
+
+.controls {
+    margin: 15px;
+}
+
+select {
+    padding: 8px;
+    margin: 5px;
+}
+
+.dark {
+    background-color: #121212;
+    color: white;
+}
+
+.dark .card {
+    background-color: #1e1e1e;
+}
