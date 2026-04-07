@@ -10,6 +10,24 @@
 <body>
 
     <h1>🌾 Crop & Food Product Explorer</h1>
+    <div class="controls">
+
+    <select id="countryFilter">
+        <option value="">All Countries</option>
+        <option value="india">India</option>
+        <option value="france">France</option>
+        <option value="usa">USA</option>
+    </select>
+
+    <select id="sortOption">
+        <option value="">Sort</option>
+        <option value="asc">A → Z</option>
+        <option value="desc">Z → A</option>
+    </select>
+
+    <button onclick="toggleTheme()">🌙 Toggle Theme</button>
+
+</div>
 
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search food products...">
