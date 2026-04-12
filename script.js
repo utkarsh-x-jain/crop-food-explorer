@@ -1,38 +1,46 @@
 let allProducts = [];
 let filteredProducts = [];
-let favorites = [];
+let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-// SEARCH + FETCH
+// ==========================
+// SEARCH + FETCH (MealDB API)
+// ==========================
 async function searchProducts() {
-    const query = document.getElementById("searchInput").value;
+    const query = document.getElementById("searchInput").value.trim();
 
     if (!query) {
-        alert("Please enter a product name");
+        alert("Please enter a meal name");
         return;
     }
 
-    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&json=1`;
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "<p>Loading...</p>";
+
+    const url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
 
     try {
         const response = await fetch(url);
         const data = await response.json();
 
-        allProducts = data.products || [];
+        allProducts = data.meals || [];
         filteredProducts = [...allProducts];
 
         displayProducts(filteredProducts);
 
     } catch (error) {
         console.error("Error fetching data:", error);
+        resultsDiv.innerHTML = "<p>Error fetching data</p>";
     }
 }
 
-// DISPLAY (using MAP ✅)
+// ==========================
+// DISPLAY PRODUCTS
+// ==========================
 function displayProducts(products) {
     const resultsDiv = document.getElementById("results");
 
-    if (products.length === 0) {
-        resultsDiv.innerHTML = "<p>No products found</p>";
+    if (!products || products.length === 0) {
+        resultsDiv.innerHTML = "<p>No meals found</p>";
         return;
     }
 
@@ -40,38 +48,42 @@ function displayProducts(products) {
         .slice(0, 10)
         .map(product => `
             <div class="card">
-                <h3>${product.product_name || "No Name"}</h3>
-                <p><strong>Category:</strong> ${product.categories || "N/A"}</p>
-                <p><strong>Country:</strong> ${product.countries || "N/A"}</p>
-                <p><strong>Energy:</strong> ${product.nutriments?.energy || "N/A"} kcal</p>
+                <img src="${product.strMealThumb}" alt="${product.strMeal}" width="100%" />
+                <h3>${product.strMeal}</h3>
+                <p><strong>Category:</strong> ${product.strCategory || "N/A"}</p>
+                <p><strong>Country:</strong> ${product.strArea || "N/A"}</p>
 
-                <button onclick="toggleFavorite('${product._id}')">
-                    ${favorites.includes(product._id) ? "❤️" : "🤍"}
+                <button onclick="toggleFavorite('${product.idMeal}')">
+                    ${favorites.includes(product.idMeal) ? "❤️" : "🤍"}
                 </button>
             </div>
         `)
         .join("");
 }
 
-// FILTER (using FILTER ✅)
+// ==========================
+// FILTER (Country / Area)
+// ==========================
 document.getElementById("countryFilter").addEventListener("change", (e) => {
     const country = e.target.value.toLowerCase();
 
     filteredProducts = allProducts.filter(product =>
         country === "" ||
-        product.countries?.toLowerCase().includes(country)
+        product.strArea?.toLowerCase().includes(country)
     );
 
     displayProducts(filteredProducts);
 });
 
-// SORT (using SORT ✅)
+// ==========================
+// SORT (A-Z / Z-A)
+// ==========================
 document.getElementById("sortOption").addEventListener("change", (e) => {
     const order = e.target.value;
 
     const sorted = [...filteredProducts].sort((a, b) => {
-        const nameA = a.product_name?.toLowerCase() || "";
-        const nameB = b.product_name?.toLowerCase() || "";
+        const nameA = a.strMeal?.toLowerCase() || "";
+        const nameB = b.strMeal?.toLowerCase() || "";
 
         return order === "asc"
             ? nameA.localeCompare(nameB)
@@ -81,18 +93,23 @@ document.getElementById("sortOption").addEventListener("change", (e) => {
     displayProducts(sorted);
 });
 
-// FAVORITE BUTTON 
+// ==========================
+// FAVORITES (with localStorage)
+// ==========================
 function toggleFavorite(id) {
     if (favorites.includes(id)) {
         favorites = favorites.filter(fav => fav !== id);
     } else {
-        favorites = [...favorites, id];
+        favorites.push(id);
     }
 
+    localStorage.setItem("favorites", JSON.stringify(favorites));
     displayProducts(filteredProducts);
 }
 
+// ==========================
 // DARK MODE
+// ==========================
 function toggleTheme() {
     document.body.classList.toggle("dark");
 }
