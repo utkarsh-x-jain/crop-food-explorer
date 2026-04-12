@@ -3,32 +3,40 @@ let filteredProducts = [];
 let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
 // ==========================
-// SEARCH + FETCH (MealDB API)
+// AUTO LOAD DATA ON START
+// ==========================
+window.onload = () => {
+    document.getElementById("searchInput").value = "chicken";
+    searchProducts();
+};
+
+// ==========================
+// SEARCH + FETCH
 // ==========================
 async function searchProducts() {
     const query = document.getElementById("searchInput").value.trim();
 
-    if (!query) {
-        alert("Please enter a meal name");
-        return;
-    }
-
     const resultsDiv = document.getElementById("results");
     resultsDiv.innerHTML = "<p>Loading...</p>";
 
-    const url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
+    const url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query || "chicken"}`;
 
     try {
         const response = await fetch(url);
         const data = await response.json();
 
-        allProducts = data.meals || [];
+        if (!data.meals) {
+            resultsDiv.innerHTML = "<p>No meals found. Try 'chicken', 'rice', 'pizza'</p>";
+            return;
+        }
+
+        allProducts = data.meals;
         filteredProducts = [...allProducts];
 
         displayProducts(filteredProducts);
 
     } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error:", error);
         resultsDiv.innerHTML = "<p>Error fetching data</p>";
     }
 }
@@ -39,19 +47,14 @@ async function searchProducts() {
 function displayProducts(products) {
     const resultsDiv = document.getElementById("results");
 
-    if (!products || products.length === 0) {
-        resultsDiv.innerHTML = "<p>No meals found</p>";
-        return;
-    }
-
     resultsDiv.innerHTML = products
         .slice(0, 10)
         .map(product => `
             <div class="card">
-                <img src="${product.strMealThumb}" alt="${product.strMeal}" width="100%" />
+                <img src="${product.strMealThumb}" width="100%" />
                 <h3>${product.strMeal}</h3>
-                <p><strong>Category:</strong> ${product.strCategory || "N/A"}</p>
-                <p><strong>Country:</strong> ${product.strArea || "N/A"}</p>
+                <p><strong>Category:</strong> ${product.strCategory}</p>
+                <p><strong>Country:</strong> ${product.strArea}</p>
 
                 <button onclick="toggleFavorite('${product.idMeal}')">
                     ${favorites.includes(product.idMeal) ? "❤️" : "🤍"}
@@ -62,7 +65,7 @@ function displayProducts(products) {
 }
 
 // ==========================
-// FILTER (Country / Area)
+// FILTER
 // ==========================
 document.getElementById("countryFilter").addEventListener("change", (e) => {
     const country = e.target.value.toLowerCase();
@@ -76,14 +79,14 @@ document.getElementById("countryFilter").addEventListener("change", (e) => {
 });
 
 // ==========================
-// SORT (A-Z / Z-A)
+// SORT
 // ==========================
 document.getElementById("sortOption").addEventListener("change", (e) => {
     const order = e.target.value;
 
     const sorted = [...filteredProducts].sort((a, b) => {
-        const nameA = a.strMeal?.toLowerCase() || "";
-        const nameB = b.strMeal?.toLowerCase() || "";
+        const nameA = a.strMeal.toLowerCase();
+        const nameB = b.strMeal.toLowerCase();
 
         return order === "asc"
             ? nameA.localeCompare(nameB)
@@ -94,7 +97,7 @@ document.getElementById("sortOption").addEventListener("change", (e) => {
 });
 
 // ==========================
-// FAVORITES (with localStorage)
+// FAVORITES
 // ==========================
 function toggleFavorite(id) {
     if (favorites.includes(id)) {
