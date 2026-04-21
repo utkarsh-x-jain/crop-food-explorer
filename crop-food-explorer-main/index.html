@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop & Food Product Explorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>🌾 Crop & Food Product Explorer</h1>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+        <select id="countryFilter">
+            <option value="">All Countries</option>
+            <option value="india">India</option>
+            <option value="france">France</option>
+            <option value="united-kingdom">UK</option>
+            <option value="united-states">USA</option>
+        </select>
+
+        <select id="sortOption">
+            <option value="">Sort</option>
+            <option value="asc">A → Z</option>
+            <option value="desc">Z → A</option>
+        </select>
+
+        <button onclick="toggleTheme()">🌙 Toggle Theme</button>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search products (milk, chocolate, rice...)">
+        <button onclick="searchProducts()">Search</button>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results"></div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
